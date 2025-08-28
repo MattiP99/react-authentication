@@ -1,0 +1,15 @@
+{
+    "users":[
+        {
+            "id":"1",
+            "email": "mattippi@gmail.com",
+            "passwordHash":"$2a$10$7QJfXG9k1r0b8eW8Fh8sEuXK5jFz8eW8Fh8sEuXK5jFz8eW8Fh8sEu", 
+            "info":{
+                "hairColor": "brown",
+                "favoriteFood": "pizza",
+                "bio": "I love coding"
+            },
+            "isVerified": false
+        }
+    ]
+}
