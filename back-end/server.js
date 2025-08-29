@@ -101,7 +101,7 @@ app.post('/api/log-in', async (req, res) => {
         jwt.sign({
             id,
             email,
-            info: startingInfo,
+            info,
             isVerified: false,
         }, process.env.JWT_SECRET, {expiresIn:'2d'}, (err,token) => {
             if (err) {
@@ -190,4 +190,48 @@ app.put('/api/verify-email', async (req, res) => {
     res.json({token});
     })
 })
+
+// FORGOT PASSWORD 
+app.put('/api/forgot-password/:email', async (req, res) => {
+    const {email} = req.params;
+    const user = db.users.find(user => user.email === email);
+    // Generate a password reset code using uuidv4 package
+    const passwordResetCode = uuidv4();
+    user.passwordResetCode = passwordResetCode;
+    // Save the database because we want the user to have this code saved
+    saveDb();
+    try {
+       await sendEmail({
+            to: email,
+            from: 'pirasmattia2299@gmail.com',
+            subject: 'Password Reset',
+            text: `To reset your password, please click on this link: https://l64wmtt7-5173.euw.devtunnels.ms/reset-password/${passwordResetCode}`,
+        })
+        // If OKAY
+        res.sendStatus(200);
+    } catch(err) {
+        console.log('Error sending email', err);
+        return res.sendStatus(500);
+    }
+
+})
+
+// RESET PASSWORD
+app.put('/api/users/:passwordResetCode/reset-password', async (req, res) => {
+    const {passwordResetCode} = req.params;
+    const {newPassword} = req.body;
+    // Find the user with this password reset code
+    const user = db.users.find(user => user.passwordResetCode === passwordResetCode);
+    if (!user) {
+        return res.status(401).json({message: 'the password reset code is incorrect'});
+    }
+    // If we found the user we hash the new password and update the passwordHash
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = newPasswordHash;
+    // We also remove the password reset code from the user
+    delete user.passwordResetCode;
+    saveDb();
+    res.sendStatus(200);
+});
+
 app.listen(3000, () => console.log('Server running on port 3000'));

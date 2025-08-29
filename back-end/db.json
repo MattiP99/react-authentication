@@ -25,11 +25,11 @@
     {
       "id": "bbbbb82c-c895-438d-9ca7-8887b9a17f49",
       "email": "pirasmattia2299+test2@gmail.com",
-      "passwordHash": "$2b$10$7a6d2z2qzRoZRUqBfxavUuCrkuHRYOUGF61R.wNaptOF9zedEQP..",
+      "passwordHash": "$2b$10$Rwr8Qq026MObCcoQhAa3YOya2JgTmzkEfx1/uD0lfxGIHj9i609g6",
       "info": {
-        "hairColor": "",
-        "favoriteFood": "",
-        "bio": ""
+        "hairColor": "brown",
+        "favoriteFood": "pizza",
+        "bio": "bella raga, I love 2D animation"
       },
       "isVerified": false,
       "verificationString": "d041e061-f5b9-417a-a7c9-7e5858740c7c"
