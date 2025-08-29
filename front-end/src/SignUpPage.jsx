@@ -18,10 +18,10 @@ export const SignUpPage = () => {
       email: emailValue,
       password: passwordValue 
     });
-    const {token} = response.data;
+    const { token } = response.data;
     setToken(token);
     // navigate to the user info page
-    navigate('/', {replace: true});
+    navigate('/please-verify', {replace: true});
   }
 
   return (

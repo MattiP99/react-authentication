@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const {v4: uuidv4} = require('uuid');
 const app = express();
 app.use(express.json());
+const {sendEmail} = require('./sendEmail');
 
 
 // Endpoints go here
@@ -16,7 +17,7 @@ app.post('/api/sign-up', async (req, res) => {
     const {email,password} = req.body;
     // Is there already a user in the db with this email?
     // We have to search trough our user array (see db.js file)
-    matching_user = db.users.find(u => u.email === email);
+    matching_user = db.users.find(user => user.email === email);
     if (matching_user) {
         // there is already a user with this email
         return res.sendStatus(409);
@@ -25,49 +26,66 @@ app.post('/api/sign-up', async (req, res) => {
     // The second parameter is the salt rounds, the higher the more secure but the longer it takes
     const passwordHash = await bcrypt.hash(password, 10);
     const id = uuidv4();
+
+    // EMAIL VERIFICATION
+    const verificationString = uuidv4();
     const startingInfo = {
             hairColor:'',
             favoriteFood:'',
             bio:'',
     }
-    
+    // ADD the verification string to the user in the database
     db.users.push({
         id,
         email,
         passwordHash,
         info: startingInfo,
         isVerified: false,
+        verificationString,
     })
     saveDb();
+    // LEt's send the verification email to the user who can click on the link
     
+    try{
+        await sendEmail({
+            to: email,
+            from: 'pirasmattia2299@gmail.com',
+            subject: 'Please verify your email',
+            text: `Thank you for signing up! To verify your email please click on this link: https://l64wmtt7-5173.euw.devtunnels.ms/verify-email/${verificationString}`,
+        })
+    } catch(err) {
+        console.log('Error sending email', err);
+        return res.sendStatus(500);
+    }
     // Before responsing to the user we'going to create a token and
     // we put the user data inside this.
     // process.env.JWT_SECRET is a secret key that we use to sign the token
-    jwt.sign({id,
+    jwt.sign({
+        id,
         email,
         info: startingInfo,
         isVerified: false,
     }, process.env.JWT_SECRET, {expiresIn:'2d'}, (err,token) => {
         console.log('key', process.env.JWT_SECRET);
         if (err) {
-           return res.sendStatus(500).send(err); 
+           return res.status(500).send(err); 
         }
         // If we don't have any error we send the token
         // The Id is not included because it is already inside the token
         res.json({token});
     })
     // We want to send back something to the user
-    res.json({id});
+    //res.json({id});
 
 });
 
 
 /** LOGIN-IN */
-app.post('/api/login', async (req, res) => {
+app.post('/api/log-in', async (req, res) => {
     const {email,password} = req.body;
     // Is there already a user in the db with this email?
     // We have to search trough our user array (see db.js file)
-    const user = db.users.find(u => u.email === email);
+    const user = db.users.find(user => user.email === email);
     if (!user) {
         // there is not already a user with this email
         return res.sendStatus(401);
@@ -87,7 +105,7 @@ app.post('/api/login', async (req, res) => {
             isVerified: false,
         }, process.env.JWT_SECRET, {expiresIn:'2d'}, (err,token) => {
             if (err) {
-            return res.sendStatus(500).send(err); 
+            return res.status(500).send(err); 
             }
             // If we don't have any error we send the token
             // The Id is not included because it is already inside the token
@@ -104,12 +122,12 @@ app.put('/api/users/:userId', (req, res) => {
     const {userId} = req.params;
     
     if (!authorization) {
-        return res.sendStatus(401).json({message: 'No authorization header'});
+        return res.status(401).json({message: 'No authorization header'});
     }
     // Checking if the user exists
-    const user = db.users.find(u => u.id === userId); 
+    const user = db.users.find(user => user.id === userId); 
     if (!user) {
-        return res.sendStatus(404).json({message: 'User not found'});
+        return res.sendStatus(404);
     }
     // NOTE that the token are like "Bearer asdjkcbsdjha.abhdsicbasdu.abhsdicbasi"
     const token = authorization.split(' ')[1];
@@ -117,11 +135,11 @@ app.put('/api/users/:userId', (req, res) => {
     // part of the token gets handy
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
         if (err) {
-            return res.sendStatus(401).json({message: 'Token not valid'});
+            return res.status(401).json({message: 'Token not valid'});
         }
         const {id} = decoded;
         if (id !== userId) {
-            return res.sendStatus(403).json({message: 'You can only update your own account'});
+            return res.status(403).json({message: 'You can only update your own account'});
         }
         // Now the user can update his info
         const {favoriteFood,hairColor,bio} = req.body;
@@ -144,12 +162,32 @@ app.put('/api/users/:userId', (req, res) => {
             ...user
         }, process.env.JWT_SECRET, {expiresIn:'2d'}, (err,token) => {
             if (err) {
-            return res.sendStatus(500).send(err); 
+            return res.status(500).send(err); 
             }
             // If we don't have any error we send the token
             // The Id is not included because it is already inside the token
             res.json({token});
         })
     });
-});
+})
+
+
+// ROUTE FOR EMAIL VERIFICATION
+app.put('/api/verify-email', async (req, res) => {
+    const {verificationString} = req.body;
+    // Find the user with this verification string
+    const user = db.users.find(user => user.verificationString === verificationString);
+    if (!user) {
+        return res.status(401).json({message: 'the email verification code is incorrect'});
+    }
+    // If we found the user we set isVerified to true and remove the verification string
+    user.isVerified = true;
+    const {id,email,info, isVerified} = user;
+    jwt.sign({id,email,isVerified,info}, process.env.JWT_SECRET, {expiresIn:'2d'}, (err,token) => {
+    if (err) { 
+              return res.status(500).send(err);
+    }
+    res.json({token});
+    })
+})
 app.listen(3000, () => console.log('Server running on port 3000'));

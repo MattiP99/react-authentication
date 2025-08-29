@@ -1,15 +1,38 @@
 {
-    "users":[
-        {
-            "id":"1",
-            "email": "mattippi@gmail.com",
-            "passwordHash":"$2a$10$7QJfXG9k1r0b8eW8Fh8sEuXK5jFz8eW8Fh8sEuXK5jFz8eW8Fh8sEu", 
-            "info":{
-                "hairColor": "brown",
-                "favoriteFood": "pizza",
-                "bio": "I love coding"
-            },
-            "isVerified": false
-        }
-    ]
+  "users": [
+    {
+      "id": "1",
+      "email": "mattippi@gmail.com",
+      "passwordHash": "$2a$10$7QJfXG9k1r0b8eW8Fh8sEuXK5jFz8eW8Fh8sEuXK5jFz8eW8Fh8sEu",
+      "info": {
+        "hairColor": "brown",
+        "favoriteFood": "pizza",
+        "bio": "I love coding"
+      },
+      "isVerified": false
+    },
+    {
+      "id": "505bf13c-d574-40d5-a63c-4680c1cc8ffe",
+      "email": "pirasmattia2299+test1@gmail.com",
+      "passwordHash": "$2b$10$HgGazh7OM3fBvJ0NmYXNCunRqJMddUokVvu08tivHfaAGhKW0m5ja",
+      "info": {
+        "hairColor": "",
+        "favoriteFood": "",
+        "bio": ""
+      },
+      "isVerified": false
+    },
+    {
+      "id": "bbbbb82c-c895-438d-9ca7-8887b9a17f49",
+      "email": "pirasmattia2299+test2@gmail.com",
+      "passwordHash": "$2b$10$7a6d2z2qzRoZRUqBfxavUuCrkuHRYOUGF61R.wNaptOF9zedEQP..",
+      "info": {
+        "hairColor": "",
+        "favoriteFood": "",
+        "bio": ""
+      },
+      "isVerified": false,
+      "verificationString": "d041e061-f5b9-417a-a7c9-7e5858740c7c"
+    }
+  ]
 }
