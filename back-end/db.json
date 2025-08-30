@@ -33,6 +33,18 @@
       },
       "isVerified": false,
       "verificationString": "d041e061-f5b9-417a-a7c9-7e5858740c7c"
+    },
+    {
+      "id": "4d4c38cc-4a1f-47d5-b55c-f47e0af4c921",
+      "email": "pirasmattia2299@gmail.com",
+      "passwordHash": "$2b$10$Q5zgpyuZfvE3/Um800h5fuofm4eE99DSR.XOpfquWns1Fyppr0uPa",
+      "info": {
+        "hairColor": "blonde",
+        "favoriteFood": "gelato",
+        "bio": "I'm a triathlete"
+      },
+      "isVerified": true,
+      "verificationString": "0818e16e-5782-4efd-929d-410905730f2e"
     }
   ]
 }

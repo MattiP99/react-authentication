@@ -6,7 +6,7 @@ const {v4: uuidv4} = require('uuid');
 const app = express();
 app.use(express.json());
 const {sendEmail} = require('./sendEmail');
-
+const {getGoogleOauthUrl, getGoogleUser, updateOrCreateUserFromOauth} = require('./googleOauthUtil');
 
 // Endpoints go here
 // Crating our endpoints routes
@@ -233,5 +233,35 @@ app.put('/api/users/:passwordResetCode/reset-password', async (req, res) => {
     saveDb();
     res.sendStatus(200);
 });
+
+
+// Route for GOOGLE OAUTH
+app.get('/api/auth/google/url', (req, res) => {
+    const url = getGoogleOauthUrl();
+    res.status(200).json({url});
+});
+
+// Route for Google verification: There is api here because the request is not 
+// coming from teh front end but from google
+
+app.get('/auth/google/callback', async (req, res) => {
+    // This quesry gives us more info about the user
+    const {code} = req.query;
+
+    const oauthUserInfo = await getGoogleUser(code);
+    const createdUser = await updateOrCreateUserFromOauth(oauthUserInfo);
+    const {id, isVerified, email, info} = createdUser;
+    jwt.sign({
+            id,
+            isVerified,
+            email,
+            info
+    }, process.env.JWT_SECRET, {expiresIn:'2d'}, (err,token) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.redirect(`https://l64wmtt7-5173.euw.devtunnels.ms/log-in?token=${token}`);
+    });
+    });
 
 app.listen(3000, () => console.log('Server running on port 3000'));

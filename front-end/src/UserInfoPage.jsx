@@ -5,9 +5,10 @@ import { useToken } from './useToken';
 import axios from 'axios';
 
 export const UserInfoPage = () => {
-  const [token, setToken] = useToken();
+  
   const user = useUser();
   const {id, email, info} = user;
+  const [token, setToken] = useToken();
   
   // These states are bound to the values of the text inputs
   // on the page (see JSX below). 
@@ -80,7 +81,7 @@ export const UserInfoPage = () => {
   // And here we have the JSX for our component. It's pretty straightforward
   return (
     <div className="content-container">
-      <h1>Info for ______</h1>
+      <h1>Info for {email}</h1>
       {showSuccessMessage && <div className="success">Successfully saved user data!</div>}
       {showErrorMessage && <div className="fail">Uh oh... something went wrong and we couldn't save changes</div>}
       <label>
